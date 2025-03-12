@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Home,
   UserRoundSearch,
@@ -7,15 +7,32 @@ import {
   UserCog,
   TreePalm,
   CalendarClock,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useNavigate } from "react-router";
+import { jwtDecode } from "jwt-decode";
 
 const Sidebar = () => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken: { isAdmin: boolean } = jwtDecode(token);
+      setIsAdmin(decodedToken.isAdmin);
+    }
+  }, [isAdmin]);
 
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const toggleUserMenu = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
   };
 
   return (
@@ -70,13 +87,46 @@ const Sidebar = () => {
           <Calendar className="mr-2" />
           {isExpanded && <span>Feriados</span>}
         </li>
-        <li
-          className="p-4 hover:bg-indigo-700 flex items-center"
-          onClick={() => navigate("/usuarios")}
-        >
-          <UserCog className="mr-2" />
-          {isExpanded && <span>Usuarios</span>}
-        </li>
+        {isAdmin && (
+          <li className="p-4 hover:bg-indigo-700 flex items-center flex-col">
+            <div
+              className="flex items-center justify-between w-full"
+              onClick={toggleUserMenu}
+            >
+              <div className="flex items-center">
+                <UserCog className="mr-2" />
+                {isExpanded && <span>Administración</span>}
+              </div>
+              {isExpanded && (
+                <button className="focus:outline-none">
+                  {isUserMenuOpen ? <ChevronUp /> : <ChevronDown />}
+                </button>
+              )}
+            </div>
+            {isUserMenuOpen && isExpanded && (
+              <ul className="w-full mt-2">
+                <li
+                  className="p-4 hover:bg-indigo-700 flex items-center"
+                  onClick={() => navigate("/usuarios")}
+                >
+                  <span>Gestión de Usuarios</span>
+                </li>
+                <li
+                  className="p-4 hover:bg-indigo-700 flex items-center"
+                  onClick={() => navigate("/dependencias")}
+                >
+                  <span>Gestión de Dependencias</span>
+                </li>
+                <li
+                  className="p-4 hover:bg-indigo-700 flex items-center"
+                  onClick={() => navigate("/cargos")}
+                >
+                  <span>Gestión de Cargos</span>
+                </li>
+              </ul>
+            )}
+          </li>
+        )}
       </ul>
     </div>
   );

@@ -6,6 +6,7 @@ import { fetchFeriados, addFeriado } from "../services/api";
 import Modal from "react-modal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { toast } from "react-toastify";
 
 interface Holiday {
   fecha: string;
@@ -33,6 +34,7 @@ function Calendario() {
   const mutation = useMutation({
     mutationFn: addFeriado,
     onSuccess: () => {
+      toast.success("Feriado agregado exitosamente");
       queryClient.invalidateQueries(["feriados"]);
     },
   });

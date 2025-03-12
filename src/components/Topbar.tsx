@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { LogOut, User, FileChartLine } from "lucide-react";
+import { LogOut, User, FileChartLine, PenLine } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useLocation, useNavigate } from "react-router";
 import { jwtDecode } from "jwt-decode";
@@ -44,8 +44,14 @@ const Topbar = () => {
         return "Feriados";
       case "/usuarios":
         return "Usuarios";
+      case "/dependencias":
+        return "Dependencias";
+      case "/cargos":
+        return "Cargos";
       case "/profile":
         return "Perfil de Usuario";
+      case "/cambiar_contraseña":
+        return "Cambiar Contraseña";
 
       default:
         return "Inicio";
@@ -62,6 +68,10 @@ const Topbar = () => {
 
   const handleProfileClick = () => {
     navigate("/profile");
+    setDropdownOpen(false);
+  };
+  const handleChangePasswordClick = () => {
+    navigate("/cambiar_contraseña");
     setDropdownOpen(false);
   };
 
@@ -87,6 +97,13 @@ const Topbar = () => {
                 >
                   <FileChartLine className="mr-2" />
                   Perfil
+                </li>
+                <li
+                  className="p-2 hover:bg-gray-100 cursor-pointer flex items-center"
+                  onClick={handleChangePasswordClick}
+                >
+                  <PenLine className="mr-2" />
+                  Cambiar Contraseña
                 </li>
                 <li
                   className="p-2 hover:bg-gray-100 cursor-pointer flex items-center"

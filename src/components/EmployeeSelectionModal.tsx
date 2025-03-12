@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useTable, useGlobalFilter } from "react-table";
-import { fetchEmployees, generateUser } from "../services/api";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { fetchEmployees } from "../services/api";
+import Modal from "react-modal";
+
 interface Employee {
-  cedula: string;
+  cedula: number;
   primer_nombre: string;
   primer_apellido: string;
   dependencia: {
@@ -13,14 +13,23 @@ interface Employee {
   };
   cargo: {
     nombre: string;
-  };
-  usuarioDetails?: {
-    estado: string;
+    tipoEmpleado: {
+      descripcion: string;
+    };
   };
 }
 
-function Usuarios() {
-  const queryClient = useQueryClient();
+interface EmployeeSelectionModalProps {
+  isOpen: boolean;
+  onRequestClose: () => void;
+  onSelectEmployee: (employee: Employee) => void;
+}
+
+const EmployeeSelectionModal: React.FC<EmployeeSelectionModalProps> = ({
+  isOpen,
+  onRequestClose,
+  onSelectEmployee,
+}) => {
   const {
     data: employees,
     isLoading,
@@ -31,22 +40,6 @@ function Usuarios() {
   });
 
   const [globalFilter, setGlobalFilter] = useState("");
-
-  const generateUserMutation = useMutation({
-    mutationFn: generateUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries(["employees"]);
-      toast.success("Usuario generado correctamente");
-    },
-    onError: (error: Error) => {
-      toast.error("Error al generar el usuario");
-      console.error(error);
-    },
-  });
-
-  const handleGenerateUser = (cedula: string) => {
-    generateUserMutation.mutate({ cedula: parseInt(cedula, 10) });
-  };
 
   const columns = React.useMemo(
     () => [
@@ -69,36 +62,6 @@ function Usuarios() {
       {
         Header: "Cargo",
         accessor: "cargo.nombre",
-      },
-      {
-        Header: "Nombre de Usuario",
-        accessor: "usuarioDetails.nombre_usuario",
-        Cell: ({ row }: { row: { original: Employee } }) => (
-          <div>
-            {row.original.usuarioDetails
-              ? row.original.usuarioDetails.nombre_usuario
-              : "No tiene usuario"}
-          </div>
-        ),
-      },
-      {
-        Header: "Acciones",
-        accessor: "acciones",
-        Cell: ({ row }: { row: { original: Employee } }) => (
-          <div className="flex flex-col space-y-2">
-            <button
-              onClick={() => handleGenerateUser(row.original.cedula)}
-              disabled={!!row.original.usuarioDetails}
-              className={`px-4 py-2 rounded ${
-                row.original.usuarioDetails
-                  ? "bg-gray-500 text-white"
-                  : "bg-blue-500 text-white"
-              }`}
-            >
-              Generar Usuario
-            </button>
-          </div>
-        ),
       },
     ],
     []
@@ -123,14 +86,22 @@ function Usuarios() {
   if (error) return <div>Error al cargar los empleados</div>;
 
   return (
-    <div className="p-4">
-      <input
-        type="text"
-        value={globalFilter}
-        onChange={(e) => setGlobalFilter(e.target.value)}
-        placeholder="Buscar..."
-        className="mb-4 p-2 border rounded w-full"
-      />
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      contentLabel="Seleccionar Empleado"
+      className="bg-white p-8 rounded shadow-lg max-w-3xl mx-auto mt-20"
+    >
+      <h2 className="text-xl font-bold mb-4">Seleccionar Empleado</h2>
+      <div className="flex mb-4">
+        <input
+          type="text"
+          value={globalFilter}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Buscar..."
+          className="p-2 border rounded w-full"
+        />
+      </div>
       <table {...getTableProps()} className="min-w-full bg-white">
         <thead>
           {headerGroups.map((headerGroup) => (
@@ -152,8 +123,11 @@ function Usuarios() {
             return (
               <tr
                 {...row.getRowProps()}
-                className="border-b"
-                key={row.original.cedula}
+                className="border-b cursor-pointer"
+                onClick={() => {
+                  onSelectEmployee(row.original);
+                  onRequestClose();
+                }}
               >
                 {row.cells.map((cell) => (
                   <td
@@ -169,8 +143,8 @@ function Usuarios() {
           })}
         </tbody>
       </table>
-    </div>
+    </Modal>
   );
-}
+};
 
-export default Usuarios;
+export default EmployeeSelectionModal;

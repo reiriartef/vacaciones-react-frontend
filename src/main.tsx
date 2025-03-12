@@ -11,6 +11,13 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import Calendario from "./components/Calendario";
 import Usuarios from "./components/Usuarios";
 import Empleados from "./components/Empleados";
+import Dependencias from "./components/Dependencias";
+import Cargos from "./components/Cargos";
+import Vacaciones from "./components/Vacaciones";
+import Permisos from "./components/Permisos";
+import WelcomePage from "./components/WelcomePage";
+import ChangePassword from "./components/ChangePassword";
+import ProfileScreen from "./components/Profile";
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
@@ -33,10 +40,19 @@ createRoot(document.getElementById("root")!).render(
                 <ProtectedRoute>
                   <DashboardLayout>
                     <Routes>
-                      <Route path="/" element={<h1>Hola</h1>} />
+                      <Route path="/" element={<WelcomePage />} />
+                      <Route path="/profile" element={<ProfileScreen />} />
                       <Route path="/empleados" element={<Empleados />} />
+                      <Route path="/vacaciones" element={<Vacaciones />} />
                       <Route path="/feriados" element={<Calendario />} />
+                      <Route path="/permisos" element={<Permisos />} />
                       <Route path="/usuarios" element={<Usuarios />} />
+                      <Route path="/dependencias" element={<Dependencias />} />
+                      <Route path="/cargos" element={<Cargos />} />
+                      <Route
+                        path="/cambiar_contraseña"
+                        element={<ChangePassword />}
+                      />
                     </Routes>
                   </DashboardLayout>
                 </ProtectedRoute>

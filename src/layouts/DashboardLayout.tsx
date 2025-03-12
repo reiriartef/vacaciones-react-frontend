@@ -1,6 +1,8 @@
 import React, { ReactNode } from "react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,6 +16,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
         <Topbar />
         <div className="p-4 flex-1 overflow-y-auto">{children}</div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

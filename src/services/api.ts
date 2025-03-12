@@ -1,4 +1,5 @@
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const api = axios.create({
   baseURL: "http://localhost:3000", // Reemplaza con la URL de tu backend
@@ -30,9 +31,26 @@ interface NewEmployee {
   fecha_prima: string;
 }
 
+interface NewVacacion {
+  cedula: number;
+  fecha_salida: string;
+  año: number;
+}
+
+interface NewPermiso {
+  fecha_permiso: string;
+  motivo: string;
+  funcionario: number;
+  observaciones: string;
+}
+
 interface LoginData {
   username: string;
   password: string;
+}
+
+interface ChangePasswordData {
+  newPassword: string;
 }
 
 export const loginUser = async (loginData: LoginData) => {
@@ -76,5 +94,55 @@ export const fetchCargos = async () => {
 
 export const fetchDependencias = async () => {
   const response = await api.get("/api/dependencias");
+  return response.data;
+};
+
+export const registerDependencia = async (data: { nombre: string }) => {
+  const response = await api.post("/api/dependencias", data);
+  return response.data;
+};
+
+export const registerCargo = async (data: {
+  nombre: string;
+  tipo_empleado: number;
+}) => {
+  const response = await api.post("/api/cargos", data);
+  return response.data;
+};
+
+export const fetchVacaciones = async () => {
+  const response = await api.get("/api/vacaciones");
+  return response.data;
+};
+
+export const registerVacacion = async (data: NewVacacion) => {
+  const response = await api.post("/api/vacaciones", data);
+  return response.data;
+};
+
+export const updateVacation = async (data: { id: number }) => {
+  const response = await api.put(`/api/vacaciones/${data.id}`);
+  return response.data;
+};
+
+export const fetchPermisos = async () => {
+  const response = await api.get("/api/permisos");
+  return response.data;
+};
+
+export const generatePermiso = async (data: NewPermiso) => {
+  const response = await api.post("/api/permisos", data);
+  return response.data;
+};
+
+export const changePassword = async (data: ChangePasswordData) => {
+  const response = await api.put("/api/usuarios", data);
+  return response.data;
+};
+
+export const getUserData = async () => {
+  const decoded = jwtDecode(localStorage.getItem("token"));
+  const userId = decoded.id;
+  const response = await api.get(`/api/usuarios/${userId}`);
   return response.data;
 };

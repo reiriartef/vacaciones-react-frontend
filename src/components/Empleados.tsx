@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTable, useGlobalFilter } from "react-table";
 import {
@@ -10,7 +10,7 @@ import {
 import Modal from "react-modal";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 interface Employee {
@@ -59,9 +59,10 @@ function Empleados() {
     segundo_apellido: "",
     id_dependencia: "",
     id_cargo: "",
-    fecha_ingreso: "",
-    fecha_prima: "",
+    fecha_ingreso: new Date(),
+    fecha_prima: new Date(),
   });
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const mutation = useMutation({
     mutationFn: registerEmployee,
@@ -77,8 +78,8 @@ function Empleados() {
         segundo_apellido: "",
         id_dependencia: "",
         id_cargo: "",
-        fecha_ingreso: "",
-        fecha_prima: "",
+        fecha_ingreso: new Date(),
+        fecha_prima: new Date(),
       });
     },
     onError: (error: Error) => {
@@ -172,25 +173,25 @@ function Empleados() {
     mutation.mutate(formattedEmployee);
   };
 
+  useEffect(() => {
+    const isValid =
+      newEmployee.cedula &&
+      newEmployee.primer_nombre &&
+      newEmployee.segundo_nombre &&
+      newEmployee.primer_apellido &&
+      newEmployee.segundo_apellido &&
+      newEmployee.id_dependencia &&
+      newEmployee.id_cargo &&
+      newEmployee.fecha_ingreso &&
+      newEmployee.fecha_prima;
+    setIsFormValid(isValid);
+  }, [newEmployee]);
+
   if (isLoading) return <div>Cargando...</div>;
   if (error) return <div>Error al cargar los empleados</div>;
 
   return (
     <div className="p-4">
-      <div className="flex mb-4">
-        <button
-          onClick={() => setModalIsOpen(true)}
-          className="px-4 py-2 rounded bg-blue-500 text-white w-5/10"
-        >
-          Agregar Dependencias
-        </button>
-        <button
-          onClick={() => setModalIsOpen(true)}
-          className="ml-2 px-4 py-2 rounded bg-blue-500 text-white w-5/10"
-        >
-          Agregar Cargos
-        </button>
-      </div>
       <div className="flex mb-4">
         <input
           type="text"
@@ -260,6 +261,7 @@ function Empleados() {
               value={newEmployee.cedula}
               onChange={handleInputChange}
               className="border p-2 w-full"
+              required
             />
           </div>
           <div className="mb-4">
@@ -270,6 +272,7 @@ function Empleados() {
               value={newEmployee.primer_nombre}
               onChange={handleInputChange}
               className="border p-2 w-full"
+              required
             />
           </div>
           <div className="mb-4">
@@ -280,6 +283,7 @@ function Empleados() {
               value={newEmployee.segundo_nombre}
               onChange={handleInputChange}
               className="border p-2 w-full"
+              required
             />
           </div>
           <div className="mb-4">
@@ -290,6 +294,7 @@ function Empleados() {
               value={newEmployee.primer_apellido}
               onChange={handleInputChange}
               className="border p-2 w-full"
+              required
             />
           </div>
           <div className="mb-4">
@@ -300,6 +305,7 @@ function Empleados() {
               value={newEmployee.segundo_apellido}
               onChange={handleInputChange}
               className="border p-2 w-full"
+              required
             />
           </div>
           <div className="mb-4">
@@ -309,6 +315,7 @@ function Empleados() {
               value={newEmployee.id_dependencia}
               onChange={handleInputChange}
               className="border p-2 w-full"
+              required
             >
               <option value="">Seleccione una dependencia</option>
               {dependencias?.map((dep) => (
@@ -325,6 +332,7 @@ function Empleados() {
               value={newEmployee.id_cargo}
               onChange={handleInputChange}
               className="border p-2 w-full"
+              required
             >
               <option value="">Seleccione un cargo</option>
               {cargos?.map((cargo) => (
@@ -341,6 +349,7 @@ function Empleados() {
               onChange={(date) => handleDateChange(date, "fecha_ingreso")}
               className="border p-2 w-full"
               dateFormat="yyyy-MM-dd"
+              required
             />
           </div>
           <div className="mb-4">
@@ -350,18 +359,19 @@ function Empleados() {
               onChange={(date) => handleDateChange(date, "fecha_prima")}
               className="border p-2 w-full"
               dateFormat="yyyy-MM-dd"
+              required
             />
           </div>
           <button
             type="button"
             onClick={handleSubmit}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+            disabled={!isFormValid}
           >
             Agregar
           </button>
         </form>
       </Modal>
-      <ToastContainer />
     </div>
   );
 }
