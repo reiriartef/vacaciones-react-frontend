@@ -74,7 +74,7 @@ function Calendario() {
   if (error) return <div>Error al cargar los días feriados</div>;
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center m-4">
       <Calendar
         onChange={onChange}
         value={date}

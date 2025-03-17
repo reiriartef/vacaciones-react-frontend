@@ -57,7 +57,7 @@ function Dependencias() {
         Header: "Nombre",
         accessor: "nombre",
       },
-      {
+      /* {
         Header: "Acciones",
         accessor: "acciones",
         Cell: ({ row }: { row: { original: Dependencia } }) => (
@@ -67,7 +67,7 @@ function Dependencias() {
             </button>
           </div>
         ),
-      },
+      }, */
     ],
     []
   );

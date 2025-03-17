@@ -65,6 +65,22 @@ interface Feriado {
   fecha: string;
 }
 
+const motivos = [
+  "Enfermedad del Empleado",
+  "Fallecimiento de un familiar",
+  "Comparecencia ante autoridades",
+  "Pre y Post natal",
+  "Examenes medicos",
+  "Curso de Adiestramiento",
+  "Asistencia a Estudios",
+  "Presentación de Examenes",
+  "Siniestro",
+  "Desempeño de Cargo Academico",
+  "Matrimonio del Empleado",
+  "Cuidados Maternos",
+  "Otro",
+];
+
 Modal.setAppElement("#root");
 
 function Permisos() {
@@ -336,14 +352,20 @@ function Permisos() {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700">Motivo</label>
-            <input
-              type="text"
+            <select
               name="motivo"
               value={newPermiso.motivo}
               onChange={handleInputChange}
-              className="border p-2 w-full"
+              className="border p-2 w-full rounded"
               required
-            />
+            >
+              <option value="">Seleccione un motivo</option>
+              {motivos.map((motivo) => (
+                <option key={motivo} value={motivo}>
+                  {motivo}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="mb-4">
             <label className="block text-gray-700">Observaciones</label>

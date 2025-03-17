@@ -64,7 +64,7 @@ function Cargos() {
         Header: "Tipo de Empleado",
         accessor: "tipoEmpleado.descripcion",
       },
-      {
+      /* {
         Header: "Acciones",
         accessor: "acciones",
         Cell: ({ row }: { row: { original: Cargo } }) => (
@@ -74,7 +74,7 @@ function Cargos() {
             </button>
           </div>
         ),
-      },
+      }, */
     ],
     []
   );

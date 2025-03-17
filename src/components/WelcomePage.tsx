@@ -1,10 +1,10 @@
 const WelcomePage = () => {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100 p-4">
+    <div className="flex flex-col items-center h-full justify-center bg-gray-100">
       <img
         src="/darzulia.png"
         alt="Logo DAR Zulia"
-        className="w-32 h-32 mb-4"
+        className="w-50 h-50 mb-4"
       />
       <h1 className="text-4xl font-bold mb-4">
         Bienvenido al Sistema de Gestión de Vacaciones y Permisos

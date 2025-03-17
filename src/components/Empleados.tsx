@@ -4,6 +4,7 @@ import { useTable, useGlobalFilter } from "react-table";
 import {
   fetchEmployees,
   registerEmployee,
+  updateEmployee,
   fetchCargos,
   fetchDependencias,
 } from "../services/api";
@@ -14,15 +15,24 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 interface Employee {
+  id: number;
   cedula: string;
   primer_nombre: string;
+  segundo_nombre: string;
   primer_apellido: string;
+  segundo_apellido: string;
+  id_dependencia: string;
+  id_cargo: string;
+  fecha_ingreso: string;
+  fecha_prima: string;
   dependencia: {
     nombre: string;
   };
   cargo: {
     nombre: string;
-    tipo_empleado: string;
+    tipoEmpleado: {
+      descripcion: string;
+    };
   };
 }
 
@@ -51,6 +61,10 @@ function Empleados() {
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null
+  );
   const [newEmployee, setNewEmployee] = useState({
     cedula: "",
     primer_nombre: "",
@@ -64,26 +78,30 @@ function Empleados() {
   });
   const [isFormValid, setIsFormValid] = useState(false);
 
-  const mutation = useMutation({
+  const registerMutation = useMutation({
     mutationFn: registerEmployee,
     onSuccess: () => {
       queryClient.invalidateQueries(["employees"]);
       setModalIsOpen(false);
       toast.success("Funcionario agregado correctamente");
-      setNewEmployee({
-        cedula: "",
-        primer_nombre: "",
-        segundo_nombre: "",
-        primer_apellido: "",
-        segundo_apellido: "",
-        id_dependencia: "",
-        id_cargo: "",
-        fecha_ingreso: new Date(),
-        fecha_prima: new Date(),
-      });
+      resetForm();
     },
     onError: (error: Error) => {
       toast.error("Error al agregar el funcionario");
+      console.log(error);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: updateEmployee,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["employees"]);
+      setModalIsOpen(false);
+      toast.success("Funcionario actualizado correctamente");
+      resetForm();
+    },
+    onError: (error: Error) => {
+      toast.error("Error al actualizar el funcionario");
       console.log(error);
     },
   });
@@ -95,13 +113,14 @@ function Empleados() {
         accessor: "cedula",
       },
       {
-        Header: "Nombre",
-        accessor: "primer_nombre",
-      },
-      {
         Header: "Apellido",
         accessor: "primer_apellido",
       },
+      {
+        Header: "Nombre",
+        accessor: "primer_nombre",
+      },
+
       {
         Header: "Dependencia",
         accessor: "dependencia.nombre",
@@ -123,7 +142,10 @@ function Empleados() {
         accessor: "acciones",
         Cell: ({ row }: { row: { original: Employee } }) => (
           <div className="flex flex-col space-y-2">
-            <button className="px-4 py-2 rounded bg-yellow-500 text-white">
+            <button
+              onClick={() => handleEditEmployee(row.original)}
+              className="px-4 py-2 rounded bg-yellow-500 text-white"
+            >
               Modificar
             </button>
           </div>
@@ -133,7 +155,22 @@ function Empleados() {
     []
   );
 
-  const data = React.useMemo(() => employees || [], [employees]);
+  const sortedEmployees = React.useMemo(() => {
+    return (employees || []).sort((a, b) => {
+      const nameA = a.primer_nombre.toLowerCase();
+      const nameB = b.primer_nombre.toLowerCase();
+      const lastNameA = a.primer_apellido.toLowerCase();
+      const lastNameB = b.primer_apellido.toLowerCase();
+
+      if (lastNameA < lastNameB) return -1;
+      if (lastNameA > lastNameB) return 1;
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
+    });
+  }, [employees]);
+
+  const data = React.useMemo(() => sortedEmployees, [sortedEmployees]);
 
   const {
     getTableProps,
@@ -170,7 +207,45 @@ function Empleados() {
       id_cargo: parseInt(newEmployee.id_cargo, 10),
       cedula: parseInt(newEmployee.cedula, 10),
     };
-    mutation.mutate(formattedEmployee);
+
+    if (isEditing && selectedEmployeeId !== null) {
+      updateMutation.mutate({ ...formattedEmployee, id: selectedEmployeeId });
+    } else {
+      registerMutation.mutate(formattedEmployee);
+    }
+  };
+
+  const handleEditEmployee = (employee: Employee) => {
+    setIsEditing(true);
+    setSelectedEmployeeId(employee.id);
+    setNewEmployee({
+      cedula: employee.cedula,
+      primer_nombre: employee.primer_nombre,
+      segundo_nombre: employee.segundo_nombre,
+      primer_apellido: employee.primer_apellido,
+      segundo_apellido: employee.segundo_apellido,
+      id_dependencia: employee.id_dependencia,
+      id_cargo: employee.id_cargo,
+      fecha_ingreso: new Date(employee.fecha_ingreso),
+      fecha_prima: new Date(employee.fecha_prima),
+    });
+    setModalIsOpen(true);
+  };
+
+  const resetForm = () => {
+    setIsEditing(false);
+    setSelectedEmployeeId(null);
+    setNewEmployee({
+      cedula: "",
+      primer_nombre: "",
+      segundo_nombre: "",
+      primer_apellido: "",
+      segundo_apellido: "",
+      id_dependencia: "",
+      id_cargo: "",
+      fecha_ingreso: new Date(),
+      fecha_prima: new Date(),
+    });
   };
 
   useEffect(() => {
@@ -201,7 +276,10 @@ function Empleados() {
           className="p-2 border rounded w-7/10"
         />
         <button
-          onClick={() => setModalIsOpen(true)}
+          onClick={() => {
+            resetForm();
+            setModalIsOpen(true);
+          }}
           className="ml-2 px-4 py-2 rounded bg-blue-500 text-white w-3/10"
         >
           Agregar funcionario
@@ -251,7 +329,9 @@ function Empleados() {
         contentLabel="Agregar Funcionario"
         className="bg-white p-8 rounded shadow-lg max-w-md mx-auto mt-20"
       >
-        <h2 className="text-xl font-bold mb-4">Agregar Funcionario</h2>
+        <h2 className="text-xl font-bold mb-4">
+          {isEditing ? "Modificar Funcionario" : "Agregar Funcionario"}
+        </h2>
         <form>
           <div className="mb-4">
             <label className="block text-gray-700">Cédula</label>
@@ -261,6 +341,7 @@ function Empleados() {
               value={newEmployee.cedula}
               onChange={handleInputChange}
               className="border p-2 w-full"
+              readOnly={isEditing}
               required
             />
           </div>
@@ -368,7 +449,7 @@ function Empleados() {
             className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
             disabled={!isFormValid}
           >
-            Agregar
+            {isEditing ? "Modificar" : "Agregar"}
           </button>
         </form>
       </Modal>

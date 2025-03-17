@@ -7,6 +7,7 @@ import {
   registerVacacion,
   updateVacation,
   fetchFeriados,
+  downloadVacationApprovalReport,
 } from "../services/api";
 import Modal from "react-modal";
 import DatePicker from "react-datepicker";
@@ -21,6 +22,8 @@ import {
   parseISO,
 } from "date-fns";
 import EmployeeSelectionModal from "./EmployeeSelectionModal";
+import { Tooltip } from "@reach/tooltip";
+import "@reach/tooltip/styles.css";
 
 interface Vacacion {
   id: number;
@@ -48,7 +51,17 @@ interface Vacacion {
       };
     };
   };
-  usuarioAprobador: string | null;
+  usuarioAprobador: {
+    nombre_usuario: string;
+    funcionarioDetails: {
+      cedula: number;
+      primer_nombre: string;
+      segundo_nombre: string;
+      primer_apellido: string;
+      segundo_apellido: string;
+      fecha_ingreso: string;
+    } | null;
+  };
 }
 
 interface Employee {
@@ -101,6 +114,7 @@ function Vacaciones() {
     cedula: "",
     fecha_salida: new Date(),
     año: new Date().getFullYear(),
+    observaciones: "",
   });
   const [isFormValid, setIsFormValid] = useState(false);
   const [validYears, setValidYears] = useState<number[]>([]);
@@ -118,6 +132,7 @@ function Vacaciones() {
         cedula: "",
         fecha_salida: new Date(),
         año: new Date().getFullYear(),
+        observaciones: "",
       });
     },
     onError: (error: Error) => {
@@ -146,6 +161,18 @@ function Vacaciones() {
         accessor: "id",
       },
       {
+        Header: "Cédula",
+        accessor: "funcionarioDetails.cedula",
+      },
+      {
+        Header: "Nombre",
+        accessor: "funcionarioDetails.primer_nombre",
+      },
+      {
+        Header: "Apellido",
+        accessor: "funcionarioDetails.primer_apellido",
+      },
+      {
         Header: "Fecha de Inicio",
         accessor: "fecha_salida",
       },
@@ -166,30 +193,56 @@ function Vacaciones() {
         accessor: "dias_disfrutar",
       },
       {
+        Header: "Observaciones",
+        accessor: "observaciones",
+      },
+      {
         Header: "Estatus",
         accessor: "estatus",
       },
+
       {
-        Header: "Cédula",
-        accessor: "funcionarioDetails.cedula",
-      },
-      {
-        Header: "Nombre",
-        accessor: "funcionarioDetails.primer_nombre",
-      },
-      {
-        Header: "Apellido",
-        accessor: "funcionarioDetails.primer_apellido",
-      },
-      {
-        Header: "Usuario Aprobador",
+        Header: "Aprobado por",
         accessor: "usuarioAprobador.nombre_usuario",
         Cell: ({ row }: { row: { original: Vacacion } }) => (
           <div>
             {row.original.estatus === "APROBADA" ||
-            row.original.estatus === "DISFRUTADA"
-              ? row.original.usuarioAprobador.nombre_usuario.toUpperCase()
-              : "Pendiente"}
+            row.original.estatus === "DISFRUTADA" ? (
+              <Tooltip
+                label={
+                  row.original.usuarioAprobador ? (
+                    <div>
+                      <p>
+                        <strong>Nombre:</strong>{" "}
+                        {`${row.original.usuarioAprobador.funcionarioDetails?.primer_nombre} ${row.original.usuarioAprobador.funcionarioDetails?.segundo_nombre} ${row.original.usuarioAprobador.funcionarioDetails?.primer_apellido} ${row.original.usuarioAprobador.funcionarioDetails?.segundo_apellido}`}
+                      </p>
+                      <p>
+                        <strong>Cédula:</strong>{" "}
+                        {
+                          row.original.usuarioAprobador.funcionarioDetails
+                            ?.cedula
+                        }
+                      </p>
+                      <p>
+                        <strong>Fecha de Ingreso:</strong>{" "}
+                        {
+                          row.original.usuarioAprobador.funcionarioDetails
+                            ?.fecha_ingreso
+                        }
+                      </p>
+                    </div>
+                  ) : (
+                    "Pendiente"
+                  )
+                }
+              >
+                <span className="cursor-pointer">
+                  {row.original.usuarioAprobador?.nombre_usuario.toUpperCase()}
+                </span>
+              </Tooltip>
+            ) : (
+              "Pendiente"
+            )}
           </div>
         ),
       },
@@ -206,12 +259,12 @@ function Vacaciones() {
                 Aprobar
               </button>
             )}
-            {row.original.estatus === "APROBADA" && (
+            {row.original.estatus !== "SOLICITADA" && (
               <button
-                onClick={() => handleUpdateVacation(row.original, "DISFRUTADO")}
+                onClick={() => downloadVacationApprovalReport(row.original.id)}
                 className="px-4 py-2 rounded bg-blue-500 text-white"
               >
-                Disfrutado
+                Generar Planilla
               </button>
             )}
           </div>
@@ -244,7 +297,9 @@ function Vacaciones() {
   }, [vacaciones]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setNewVacacion((prev) => ({ ...prev, [name]: value }));
@@ -457,6 +512,15 @@ function Vacaciones() {
                 </option>
               ))}
             </select>
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700">Observaciones</label>
+            <textarea
+              name="observaciones"
+              value={newVacacion.observaciones}
+              onChange={handleInputChange}
+              className="border p-2 w-full"
+            />
           </div>
           <button
             type="button"

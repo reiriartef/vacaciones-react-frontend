@@ -31,6 +31,10 @@ interface NewEmployee {
   fecha_prima: string;
 }
 
+interface UpdateEmployee extends NewEmployee {
+  id: number;
+}
+
 interface NewVacacion {
   cedula: number;
   fecha_salida: string;
@@ -84,6 +88,11 @@ export const registerEmployee = async (
   employee: NewEmployee
 ): Promise<void> => {
   const response = await api.post("/api/funcionarios", employee);
+  return response.data;
+};
+
+export const updateEmployee = async (employee: UpdateEmployee) => {
+  const response = await api.put(`/api/funcionarios/${employee.id}`, employee);
   return response.data;
 };
 
@@ -145,4 +154,20 @@ export const getUserData = async () => {
   const userId = decoded.id;
   const response = await api.get(`/api/usuarios/${userId}`);
   return response.data;
+};
+
+export const downloadVacationApprovalReport = async (vacationId: number) => {
+  const response = await api.get(
+    `/api/reportes/aprobacion-vacaciones/${vacationId}`,
+    {
+      responseType: "blob",
+    }
+  );
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `aprobacion-vacaciones-${vacationId}.pdf`);
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
 };
