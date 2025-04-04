@@ -12,14 +12,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  differenceInMonths,
-  addYears,
-  format,
-  isSameDay,
-  parseISO,
-} from "date-fns";
+import { isSameDay, parseISO } from "date-fns";
 import EmployeeSelectionModal from "./EmployeeSelectionModal";
+import { es } from "date-fns/locale"; // Importa la localización en español
 
 interface Permiso {
   id: number;
@@ -318,7 +313,7 @@ function Permisos() {
         <h2 className="text-xl font-bold mb-4">Agregar Permiso</h2>
         <form>
           <div className="mb-4">
-            <label className="block text-gray-700">Empleado</label>
+            <label className="block text-gray-700 mb-2">Empleado</label>
             <div className="flex">
               <input
                 type="text"
@@ -328,7 +323,7 @@ function Permisos() {
                     : ""
                 }
                 readOnly
-                className="border p-2 w-full"
+                className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 type="button"
@@ -340,23 +335,28 @@ function Permisos() {
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Fecha de Permiso</label>
+            <label className="block text-gray-700 mb-2">Fecha de Permiso</label>
             <DatePicker
               selected={newPermiso.fecha_permiso}
               onChange={(date) => handleDateChange(date, "fecha_permiso")}
-              className="border p-2 w-full"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               dateFormat="yyyy-MM-dd"
+              showYearDropdown
+              showMonthDropdown
+              scrollableYearDropdown
+              yearDropdownItemNumber={100} // Muestra un rango de 100 años
+              locale={es} // Configura el idioma en español
               filterDate={filterDate}
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Motivo</label>
+            <label className="block text-gray-700 mb-2">Motivo</label>
             <select
               name="motivo"
               value={newPermiso.motivo}
               onChange={handleInputChange}
-              className="border p-2 w-full rounded"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="">Seleccione un motivo</option>
@@ -368,12 +368,12 @@ function Permisos() {
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Observaciones</label>
+            <label className="block text-gray-700 mb-2">Observaciones</label>
             <textarea
               name="observaciones"
               value={newPermiso.observaciones}
               onChange={handleInputChange}
-              className="border p-2 w-full"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button

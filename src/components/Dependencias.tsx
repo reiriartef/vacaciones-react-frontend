@@ -168,13 +168,13 @@ function Dependencias() {
         <h2 className="text-xl font-bold mb-4">Agregar Dependencia</h2>
         <form>
           <div className="mb-4">
-            <label className="block text-gray-700">Nombre</label>
+            <label className="block text-gray-700 mb-2">Nombre</label>
             <input
               type="text"
               name="nombre"
               value={newDependencia.nombre}
               onChange={handleInputChange}
-              className="border p-2 w-full"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>

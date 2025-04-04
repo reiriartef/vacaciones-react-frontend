@@ -14,16 +14,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import {
-  differenceInMonths,
-  addYears,
-  format,
-  isSameDay,
-  parseISO,
-} from "date-fns";
+import { differenceInMonths, addYears, isSameDay, parseISO } from "date-fns";
 import EmployeeSelectionModal from "./EmployeeSelectionModal";
 import { Tooltip } from "@reach/tooltip";
 import "@reach/tooltip/styles.css";
+import { es } from "date-fns/locale"; // Importa la localización en español
 
 interface Vacacion {
   id: number;
@@ -457,7 +452,7 @@ function Vacaciones() {
         <h2 className="text-xl font-bold mb-4">Agregar Vacación</h2>
         <form>
           <div className="mb-4">
-            <label className="block text-gray-700">Empleado</label>
+            <label className="block text-gray-700 mb-2">Empleado</label>
             <div className="flex">
               <input
                 type="text"
@@ -467,7 +462,7 @@ function Vacaciones() {
                     : ""
                 }
                 readOnly
-                className="border p-2 w-full"
+                className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 type="button"
@@ -479,23 +474,28 @@ function Vacaciones() {
             </div>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Fecha de Inicio</label>
+            <label className="block text-gray-700 mb-2">Fecha de Inicio</label>
             <DatePicker
               selected={newVacacion.fecha_salida}
               onChange={(date) => handleDateChange(date, "fecha_salida")}
-              className="border p-2 w-full"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               dateFormat="yyyy-MM-dd"
+              showYearDropdown
+              showMonthDropdown
+              scrollableYearDropdown
+              yearDropdownItemNumber={100} // Muestra un rango de 100 años
+              locale={es} // Configura el idioma en español
               filterDate={filterDate}
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Año</label>
+            <label className="block text-gray-700 mb-2">Año</label>
             <select
               name="año"
               value={newVacacion.año}
               onChange={handleInputChange}
-              className="border p-2 w-full"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="">Seleccione un año</option>
@@ -514,12 +514,12 @@ function Vacaciones() {
             </select>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Observaciones</label>
+            <label className="block text-gray-700 mb-2">Observaciones</label>
             <textarea
               name="observaciones"
               value={newVacacion.observaciones}
               onChange={handleInputChange}
-              className="border p-2 w-full"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button

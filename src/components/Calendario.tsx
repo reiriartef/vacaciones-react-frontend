@@ -99,26 +99,29 @@ function Calendario() {
         <h2 className="text-xl font-bold mb-4">Agregar Feriado</h2>
         <form>
           <div className="mb-4">
-            <label className="block text-gray-700">Título</label>
+            <label className="block text-gray-700 mb-2">Título</label>
             <input
               type="text"
               value={newHolidayTitle}
               onChange={(e) => setNewHolidayTitle(e.target.value)}
-              className="border p-2 w-full rounded"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Fecha</label>
+            <label className="block text-gray-700 mb-2">Fecha</label>
             <DatePicker
               selected={newHolidayDate}
               onChange={(date) => setNewHolidayDate(date)}
-              className="border p-2 w-full rounded"
+              className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+              dateFormat="yyyy-MM-dd"
+              required
             />
           </div>
           <button
             type="button"
             onClick={handleAddHoliday}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
+            className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+            disabled={!newHolidayDate || !newHolidayTitle}
           >
             Agregar
           </button>

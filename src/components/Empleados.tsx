@@ -13,6 +13,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Select from "react-select";
+import { es } from "date-fns/locale"; // Importa la localización en español
 
 interface Employee {
   id: number;
@@ -198,6 +200,20 @@ function Empleados() {
     }
   };
 
+  const handleDependenciaChange = (selectedOption: any) => {
+    setNewEmployee((prev) => ({
+      ...prev,
+      id_dependencia: selectedOption ? selectedOption.value : "",
+    }));
+  };
+
+  const handleCargoChange = (selectedOption: any) => {
+    setNewEmployee((prev) => ({
+      ...prev,
+      id_cargo: selectedOption ? selectedOption.value : "",
+    }));
+  };
+
   const handleSubmit = () => {
     const formattedEmployee = {
       ...newEmployee,
@@ -327,122 +343,166 @@ function Empleados() {
         isOpen={modalIsOpen}
         onRequestClose={() => setModalIsOpen(false)}
         contentLabel="Agregar Funcionario"
-        className="bg-white p-8 rounded shadow-lg max-w-md mx-auto mt-20"
+        className="bg-white p-8 rounded shadow-lg max-w-3xl mx-auto mt-20"
       >
         <h2 className="text-xl font-bold mb-4">
           {isEditing ? "Modificar Funcionario" : "Agregar Funcionario"}
         </h2>
-        <form>
-          <div className="mb-4">
-            <label className="block text-gray-700">Cédula</label>
-            <input
-              type="text"
-              name="cedula"
-              value={newEmployee.cedula}
-              onChange={handleInputChange}
-              className="border p-2 w-full"
-              readOnly={isEditing}
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Primer Nombre</label>
-            <input
-              type="text"
-              name="primer_nombre"
-              value={newEmployee.primer_nombre}
-              onChange={handleInputChange}
-              className="border p-2 w-full"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Segundo Nombre</label>
-            <input
-              type="text"
-              name="segundo_nombre"
-              value={newEmployee.segundo_nombre}
-              onChange={handleInputChange}
-              className="border p-2 w-full"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Primer Apellido</label>
-            <input
-              type="text"
-              name="primer_apellido"
-              value={newEmployee.primer_apellido}
-              onChange={handleInputChange}
-              className="border p-2 w-full"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Segundo Apellido</label>
-            <input
-              type="text"
-              name="segundo_apellido"
-              value={newEmployee.segundo_apellido}
-              onChange={handleInputChange}
-              className="border p-2 w-full"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Dependencia</label>
-            <select
-              name="id_dependencia"
-              value={newEmployee.id_dependencia}
-              onChange={handleInputChange}
-              className="border p-2 w-full"
-              required
-            >
-              <option value="">Seleccione una dependencia</option>
-              {dependencias?.map((dep) => (
-                <option key={dep.id} value={dep.id}>
-                  {dep.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Cargo</label>
-            <select
-              name="id_cargo"
-              value={newEmployee.id_cargo}
-              onChange={handleInputChange}
-              className="border p-2 w-full"
-              required
-            >
-              <option value="">Seleccione un cargo</option>
-              {cargos?.map((cargo) => (
-                <option key={cargo.id} value={cargo.id}>
-                  {cargo.nombre} - {cargo.tipoEmpleado.descripcion}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Fecha de Ingreso</label>
-            <DatePicker
-              selected={newEmployee.fecha_ingreso}
-              onChange={(date) => handleDateChange(date, "fecha_ingreso")}
-              className="border p-2 w-full"
-              dateFormat="yyyy-MM-dd"
-              required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Fecha de Prima</label>
-            <DatePicker
-              selected={newEmployee.fecha_prima}
-              onChange={(date) => handleDateChange(date, "fecha_prima")}
-              className="border p-2 w-full"
-              dateFormat="yyyy-MM-dd"
-              required
-            />
-          </div>
+        <div className="max-h-[70vh] overflow-y-auto">
+          <form className="grid grid-cols-3">
+            {/* Columna 1 */}
+            <div className="col-span-1 text-left">
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Cédula</label>
+                <input
+                  type="text"
+                  name="cedula"
+                  value={newEmployee.cedula}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  readOnly={isEditing}
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">
+                  Primer Nombre
+                </label>
+                <input
+                  type="text"
+                  name="primer_nombre"
+                  value={newEmployee.primer_nombre}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">
+                  Segundo Nombre
+                </label>
+                <input
+                  type="text"
+                  name="segundo_nombre"
+                  value={newEmployee.segundo_nombre}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">
+                  Primer Apellido
+                </label>
+                <input
+                  type="text"
+                  name="primer_apellido"
+                  value={newEmployee.primer_apellido}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">
+                  Segundo Apellido
+                </label>
+                <input
+                  type="text"
+                  name="segundo_apellido"
+                  value={newEmployee.segundo_apellido}
+                  onChange={handleInputChange}
+                  className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center justify-center col-span-1">
+              <div className="border-l-2 border-gray-300 h-full relative"></div>
+            </div>
+
+            {/* Columna 2 */}
+            <div className="col-span-1">
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Dependencia</label>
+                <Select
+                  options={dependencias?.map((dep) => ({
+                    value: dep.id,
+                    label: dep.nombre,
+                  }))}
+                  value={dependencias
+                    ?.map((dep) => ({
+                      value: dep.id,
+                      label: dep.nombre,
+                    }))
+                    .find(
+                      (option) => option.value === newEmployee.id_dependencia
+                    )}
+                  onChange={handleDependenciaChange}
+                  placeholder="Seleccione una dependencia"
+                  isClearable
+                  className="w-full"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">Cargo</label>
+                <Select
+                  options={cargos?.map((cargo) => ({
+                    value: cargo.id,
+                    label: `${cargo.nombre} - ${cargo.tipoEmpleado.descripcion}`,
+                  }))}
+                  value={cargos
+                    ?.map((cargo) => ({
+                      value: cargo.id,
+                      label: `${cargo.nombre} - ${cargo.tipoEmpleado.descripcion}`,
+                    }))
+                    .find((option) => option.value === newEmployee.id_cargo)}
+                  onChange={handleCargoChange}
+                  placeholder="Seleccione un cargo"
+                  isClearable
+                  className="w-full"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">
+                  Fecha de Ingreso
+                </label>
+                <DatePicker
+                  selected={newEmployee.fecha_ingreso}
+                  onChange={(date) => handleDateChange(date, "fecha_ingreso")}
+                  className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  dateFormat="yyyy-MM-dd"
+                  showYearDropdown
+                  showMonthDropdown
+                  scrollableYearDropdown
+                  yearDropdownItemNumber={100} // Muestra un rango de 100 años
+                  locale={es} // Configura el idioma en español
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 mb-2">
+                  Fecha de Prima
+                </label>
+                <DatePicker
+                  selected={newEmployee.fecha_prima}
+                  onChange={(date) => handleDateChange(date, "fecha_prima")}
+                  className="border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  dateFormat="yyyy-MM-dd"
+                  showYearDropdown
+                  showMonthDropdown
+                  scrollableYearDropdown
+                  yearDropdownItemNumber={100} // Muestra un rango de 100 años
+                  locale={es} // Configura el idioma en español
+                  required
+                />
+              </div>
+            </div>
+          </form>
+        </div>
+        <div className="mt-4">
           <button
             type="button"
             onClick={handleSubmit}
@@ -451,7 +511,7 @@ function Empleados() {
           >
             {isEditing ? "Modificar" : "Agregar"}
           </button>
-        </form>
+        </div>
       </Modal>
     </div>
   );
